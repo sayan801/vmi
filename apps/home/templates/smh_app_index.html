@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% block breadcrumbs %}
+                    <ol class="breadcrumb">
+                        <li class="active"><a href="/">Home</a></li>
+                    </ol>
+{% endblock %}
 {% block Content %}
             <div class="row">
                 <div class="col">
@@ -79,4 +84,3 @@ if (empt != "")
     }
 </script>
 {% endblock %}
-

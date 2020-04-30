@@ -248,7 +248,7 @@ OIDC_PROVIDER = {
         'apps.oidc.claims.UserClaimProvider',
 
         # Optional
-        # The USerProfileClaimProvider currently gets all claims fetch-able via the
+        # The UserProfileClaimProvider currently gets all claims fetch-able via the
         # UserProfile.
         'apps.accounts.claims.UserProfileClaimProvider',
         'apps.accounts.claims.AddressClaimProvider',
@@ -278,6 +278,9 @@ KILLER_APP_TITLE = env('KILLER_APP_TITLE', 'Share My Health Web Application')
 KILLER_APP_URI = env('KILLER_APP_URI', 'http://smhapp:8002')
 
 TOP_LEFT_TITLE = env('TOP_LEFT_TITLE', 'verify my identity')
+PARTNER_REF = env('PARTNER_REF', '')
+if len(PARTNER_REF) > 0:
+    PARTNER_REF += "/"
 
 ORGANIZATION_TITLE = env(
     'DJANGO_ORGANIZATION_TITLE',
@@ -298,7 +301,6 @@ TOS_TITLE = env('DJANGO_TOS_TITLE', 'Terms of Service')
 REQUIRE_TRAINING_FOR_AGENT_SIGNUP = bool_env(env('REQUIRE_TRAINING_FOR_AGENT_SIGNUP', False))
 TRAINING_URI = env('TRAINING_URI',
                    'http://example.com/training1.0.html')
-
 TOS_TITLE = env('DJANGO_TOS_TITLE', 'Terms of Service')
 EXPLAINATION_LINE = ('This is an instance of Verify My Identity, \
                      a standards-based OpenID Connect Identity Provider.')
@@ -321,7 +323,7 @@ DISCLOSURE_TEXT = env('DJANGO_PRIVACY_POLICY_URI', DEFAULT_DISCLOSURE_TEXT)
 HOSTNAME_URL = env('HOSTNAME_URL', 'http://localhost:8000')
 
 ORG_SIGNUP_CONTACT = env('ORG_SIGNUP_CONTACT',
-                         'https://abhealth.us/contact-us/')
+                         'https://example.com/contact-us/')
 
 # Allow Members to create accounts
 ALLOW_MEMBER_SIGNUP = bool_env(env('ALLOW_MEMBER_SIGNUP', False))
@@ -352,13 +354,15 @@ SETTINGS_EXPORT = [
     'KILLER_APP_URI',
     'KILLER_APP_TITLE',
     'ORG_SIGNUP_CONTACT',
-    'ALLOW_MEMBER_SIGNUP'
+    'ALLOW_MEMBER_SIGNUP',
+    'PARTNER_REF',
+    'PUBLIC_HOME_TEMPLATE',
 ]
 
 # Emails
-DEFAULT_FROM_EMAIL = env('FROM_EMAIL', 'no-reply@verifymyidentity.com')
+DEFAULT_FROM_EMAIL = env('FROM_EMAIL', 'no-reply@example.com')
 DEFAULT_ADMIN_EMAIL = env('ADMIN_EMAIL',
-                          'no-reply@verifymyidentity.com')
+                          'no-reply@example.com')
 
 # Select the right Email delivery system that works for you.
 # Django's default is 'django.core.mail.backends.smtp.EmailBackend'. This will work with most email systems.
@@ -438,13 +442,23 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = int(env('SESSION_COOKIE_AGE', int(30 * 60)))
 
 
+# Whitelabeling.The next settings allow for homepage and login screen
+# customization.
+
 # Pick a login template and title.
 LOGIN_TEMPLATE_PICKER = {"default": 'login.html',
                          'share-my-health': 'login.html',
                          # Add others here to create a custom login template.
                          }
 
-# List of IAL2 classifications. You can defined your own.  Anything that is not empty
+# Whitelabel: Pick a public template. Customize to your needs.
+PUBLIC_HOME_TEMPLATE = env('PUBLIC_HOME_TEMPLATE', "index.html")
+
+# What a user sees when logged in.
+AUTHENTICATED_HOME_TEMPLATE = env(
+    'AUTHENTICATED_HOME_TEMPLATE', "authenticated-home.html")
+
+# List of IAL2 classifications. You can define your own.  Anything that is not empty
 # (e.g.  not "") will be an IAL2.""
 IAL2_EVIDENCE_CLASSIFICATIONS = (
     # Generic
@@ -452,7 +466,7 @@ IAL2_EVIDENCE_CLASSIFICATIONS = (
      'One Superior or Strong+ pieces of identity evidence'),
     ('ONE-STRONG-TWO-FAIR', 'One Strong and Two Fair pieces of identity evidence'),
     ('TWO-STRONG', 'Two Pieces of Strong identity evidence'),
-    ('TRUSTED-REFEREE-VOUCH', 'I am a Trusted Referee Vouching for this person'),
+
     # More specific
     ('ONE-SUPERIOR-OR-STRONG-PLUS-1', "Driver's License"),
     ('ONE-SUPERIOR-OR-STRONG-PLUS-2', "Identification Card"),
@@ -460,7 +474,8 @@ IAL2_EVIDENCE_CLASSIFICATIONS = (
     ('ONE-SUPERIOR-OR-STRONG-PLUS-4', 'Passport'),
     ('ONE-SUPERIOR-OR-STRONG-PLUS-5', 'NY Medicaid ID Card'),
     ('ONE-SUPERIOR-OR-STRONG-PLUS-6', 'Medicare ID'),
-    ('TWO-STRONG-1', 'Original Birth Certificate and a Social Security Card')
+    ('TWO-STRONG-1', 'Original Birth Certificate and a Social Security Card'),
+    ('TRUSTED-REFEREE-VOUCH', 'I am a Trusted Referee Vouching for this person'),
 )
 
 
@@ -511,4 +526,18 @@ EXPIRY_DATE_ACCEPTABLE_YEARS = [x for x in range(now.year, 2050)]
 VECTORS_OF_TRUST_TRUSTMARK_URL = env('VECTORS_OF_TRUST_TRUSTMARK_URL',
                                      'https://github.com/TransparentHealth/800-63-3-trustmark/')
 
-ALLOW_MULTIPLE_USERS_PER_EMAIL = bool_env(env('ALLOW_MULTIPLE_USERS_PER_EMAIL', False))
+# ALLOW_MULTIPLE_USERS_PER_EMAIL should never be activated on a production
+# system. It exists for debugging and testing.
+ALLOW_MULTIPLE_USERS_PER_EMAIL = bool_env(
+    env('ALLOW_MULTIPLE_USERS_PER_EMAIL', False))
+
+
+# Use these settings to allow/disallow different ID verification modes.
+ALLOW_PHYSICAL_INPERSON_PROOFING = bool_env(
+    env('ALLOW_PHYSICAL_INPERSON_PROOFING', True))  # pipp
+ALLOW_SUPERVISED_REMOTE_INPERSON_PROOFING = bool_env(
+    env('ALLOW_PHYSICAL_INPERSON_PROOFING', True))  # sripp
+ALLOW_ONLINE_VERIFICATION_OF_AN_ELECTRONIC_ID_CARD = bool_env(
+    env('ALLOW_ONLINE_VERIFICATION_OF_AN_ELECTRONIC_ID_CARD', False))  # eid
+DEFAULT_PROOFING_METHOD = env(
+    'DEFAULT_PROOFING_METHOD', 'pipp')  # pipp, sripp, or eid
